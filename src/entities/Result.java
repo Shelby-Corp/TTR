@@ -7,12 +7,9 @@ public class Result {
     public Integer SessionId;
 
     public Date dateOfResult;
-    public Result(Integer AnswerId, Integer SessionId){
+    public Result(Integer AnswerId, Integer SessionId, Date dateOfResult){
         this.AnswerId = AnswerId;
         this.SessionId = SessionId;
-    }
-
-    public void setDateOfResult(Date dateOfResult) {
         this.dateOfResult = dateOfResult;
     }
 

@@ -1,5 +1,7 @@
 package entities;
 
+import java.util.Objects;
+
 public class Question extends Entity{
     String text;
 
@@ -10,5 +12,12 @@ public class Question extends Entity{
 
     public String getText() {
         return text;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        return o instanceof Question &&
+                Objects.equals(((Question) o).id, this.id) &&
+                ((Question) o).text.equals(this.text);
     }
 }

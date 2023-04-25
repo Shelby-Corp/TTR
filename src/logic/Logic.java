@@ -13,6 +13,8 @@ public class Logic {
 
     public TypeTesting typeTesting;
 
+    public List<Result> results = new ArrayList<>();
+
     public static void main(String[] args) {
 
     }
@@ -45,31 +47,67 @@ public class Logic {
             session = new Session(1, student.getId(), selectedTypeTesting.getId());
     }
 
-    public List<Question> getQuestions(){
+    public Map<Question, List<Answer>> getQuestions(ThemeBlock chosenThemeBlock){
+
         Integer typeId = typeTesting.getId();
+        List<ThemeBlock> themeBlocks = db.getAllThemeBlocks();
+
+        Map<ThemeBlock, Integer> numbersForTheme = new HashMap<>();
+
+        Map<Question, List<Answer>> questionAnswerMap = new HashMap<>();
+
+        // Стандартное тестирование
         if (typeId == 0){
-            List<ThemeBlock> themeBlocks = db.getAllThemeBlocks();
-            Map<ThemeBlock, Integer> numbersForTheme = new HashMap<>();
             int numberOfQuestion = 20;
             ListIterator<ThemeBlock> iterator = themeBlocks.listIterator();
             while (numberOfQuestion > 0){
                 if (iterator.hasNext()){
                     ThemeBlock themeBlock = iterator.next();
-                    if (!numbersForTheme.containsKey(themeBlock)){
-                        if (numberOfQuestion > 1) {
+                    if (!numbersForTheme.containsKey(themeBlock) || numbersForTheme.get(themeBlock) == 1){
+                        if (numberOfQuestion > 1 && numbersForTheme.get(themeBlock) != 1) {
                             int localNumber = (int) Math.round(Math.random() * 2);
                             numbersForTheme.put(themeBlock, localNumber);
                             numberOfQuestion -= localNumber;
                         }
                         else {
                             numbersForTheme.put(themeBlock, 1);
-                            break;
                         }
                     }
                 } else
                     iterator = themeBlocks.listIterator();
             }
+        // Тестирование по блоку
+        } else {
+            numbersForTheme.put(chosenThemeBlock, db.getNumberOfQuestion(chosenThemeBlock));
+        }
+        // генерируем по сгенерированным блокам вопросы
+        for (ThemeBlock block: numbersForTheme.keySet()) {
+            Question prevQuestion;
+            Question nowQuestion = null;
+            for (int i = 0; i < numbersForTheme.get(block); i++) {
+                prevQuestion = db.getRandomQuestion(block);
+                while (prevQuestion.equals(nowQuestion)) {
+                    prevQuestion = db.getRandomQuestion(block);
+                }
+                nowQuestion = prevQuestion;
+                questionAnswerMap.put(nowQuestion, db.getAnswers(nowQuestion));
+            }
         }
 
+        return questionAnswerMap;
+    }
+
+    public void AppendStudentAnswer(Answer answer) {
+        results.add(new Result(answer.id, session.id, new Date()));
+    }
+
+    public void EndSession(){
+        session.setDateOfSession(new Date());
+        db.saveResults(results);
+        db.saveSession(session);
+    }
+
+    public List<Picture> getPictures(Question question){
+        return db.getPictures(question);
     }
 }

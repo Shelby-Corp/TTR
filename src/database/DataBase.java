@@ -27,4 +27,16 @@ public class DataBase {
     public List<ThemeBlock> getAllThemeBlocks(){
         return null;
     }
+
+    public Integer getNumberOfQuestion(ThemeBlock themeBlock){return null; }
+
+    public Question getRandomQuestion(ThemeBlock block){return null; }
+
+    public List<Answer> getAnswers(Question question){return null; }
+
+    public void saveSession(Session session){}
+
+    public void saveResults(List<Result> results){}
+
+    public List<Picture> getPictures(Question question){return null;}
 }
