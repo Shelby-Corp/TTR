@@ -39,12 +39,16 @@ public class Logic {
 
         typeTesting = selectedTypeTesting;
 
-        Optional<Integer> number = db.getAllSessionOfUser(student.getId()).stream().max((a, b)-> a - b);
+        List<Session> sessions = db.getAllSessionOfUser(student.getId());
 
-        if (number.isPresent())
-            session = new Session(number.get(), student.getId(), selectedTypeTesting.getId());
+        if (sessions.size() > 0)
+            session = new Session(sessions.stream().max((a, b) -> a.id - b.id).get().getId() + 1,
+                    student.getId(),
+                    selectedTypeTesting.getId());
         else
-            session = new Session(1, student.getId(), selectedTypeTesting.getId());
+            session = new Session(1,
+                    student.getId(),
+                    selectedTypeTesting.getId());
     }
 
     public Map<Question, List<Answer>> getQuestions(ThemeBlock chosenThemeBlock){
