@@ -107,7 +107,7 @@ public class Logic {
 
     public void EndSession(){
         session.setDateOfSession(new Date());
-        db.saveResults(results);
+        db.saveResults(results, session);
         db.saveSession(session);
     }
 

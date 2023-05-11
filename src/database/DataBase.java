@@ -2,10 +2,7 @@ package database;
 
 import entities.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,9 +161,34 @@ public class DataBase {
         return null;
     }
 
-    public void saveSession(Session session){}
+    public void saveSession(Session session){
+        try {
+            String query =
+                    "INSERT INTO sessions(id_session, id_student, id_type_testing, date_and_time_of_testing) VALUES (%d, %d, %d, %t)";
+            statement.executeQuery(String.format(query,
+                    session.getId(),
+                    session.getStudentId(),
+                    session.getTypeTestingId(),
+                    session.getDateOfSession()));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-    public void saveResults(List<Result> results){}
+    public void saveResults(List<Result> results, Session session){
+        try {
+            String query = "INSERT INTO results(id_session, id_answer, date_and_time_of_answering) VALUES (%d, %d, %t)";
+            results.forEach((elem) -> {
+                try {
+                    statement.executeQuery(String.format(query, session.getId(), elem.getAnswerId(), elem.getDateOfResult()));
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public List<Picture> getPictures(Question question){
         try {
