@@ -15,17 +15,14 @@ public class Logic {
 
     public List<Result> results = new ArrayList<>();
 
-    public static void main(String[] args) {
-
-    }
 
     public Logic() {
         db = new DataBase();
     }
 
     // Авторизация и ауентификация, если пользователя нет или данные неверны возращаем false, иначе true
-    public Boolean login(String fullName, String password){
-        student = db.getStudent(fullName, password);
+    public Boolean login(String fullName){
+        student = db.getStudent(fullName);
         return student != null;
     }
 

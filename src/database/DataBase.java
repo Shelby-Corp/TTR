@@ -7,16 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataBase {
-    String url = "jdbc:sqlite://localhost:";
-    String user = "root";
-    String password = "";
+    String url = "jdbc:sqlite:src\\data\\db\\pdd.db";
+
 
     Connection connection;
     Statement statement;
     public DataBase(){
         try {
-            Class.forName("com.sqlite.jdbc.Driver");
-            connection = DriverManager.getConnection(url, user, password);
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection(url);
             statement = connection.createStatement();
         } catch (Exception e){
             e.printStackTrace();
@@ -25,19 +24,18 @@ public class DataBase {
 
     // Возращается объект пользователя
     // Если пользователя в базе нет или введены неверные данные null
-    public Student getStudent(String fullName, String password){
+    public Student getStudent(String fullName){
         try {
             String query =
-                    String.format("SELECT COUNT(*) FROM students WHERE fullName='%s' AND password='%s'",
-                            fullName,
-                            password);
+                    String.format("SELECT COUNT(*) FROM student WHERE fullName='%s'",
+                            fullName);
             ResultSet resultSet = statement.executeQuery(query);
             if (resultSet.getInt(1) == 0)
                 return null;
 
-            query = String.format("SELECT id, fullName FROM students WHERE fullName='%s' AND password='%s'",
-                            fullName,
-                            password);
+            query = String.format("SELECT idStudent, fullName FROM student WHERE fullName='%s'",
+                            fullName);
+
             resultSet = statement.executeQuery(query);
 
             return new Student(resultSet.getInt(1), resultSet.getString(2));
@@ -96,14 +94,12 @@ public class DataBase {
 
     public List<ThemeBlock> getAllThemeBlocks(){
         try {
-            String query = "SELECT * FROM themeBlocks";
+            String query = "SELECT * FROM themes";
             ResultSet resultSet = statement.executeQuery(query);
             List<ThemeBlock> themeBlocks = new ArrayList<>();
-            themeBlocks.add(new ThemeBlock(resultSet.getInt("idBlockTheme"), resultSet.getString("name"),
-                    resultSet.getString("description")));
+            themeBlocks.add(new ThemeBlock(resultSet.getInt("idBlockTheme"), resultSet.getString("name")));
             while (resultSet.next()){
-                themeBlocks.add(new ThemeBlock(resultSet.getInt("idBlockTheme"), resultSet.getString("name"),
-                        resultSet.getString("description")));
+                themeBlocks.add(new ThemeBlock(resultSet.getInt("idBlockTheme"), resultSet.getString("name")));
             }
             return themeBlocks;
         }catch (Exception e){
@@ -114,7 +110,7 @@ public class DataBase {
 
     public Integer getNumberOfQuestion(ThemeBlock themeBlock){
         try {
-            String query = String.format("SELECT COUNT(*) FROM questions WHERE idBlockTheme=%d", themeBlock.getId());
+            String query = String.format("SELECT COUNT(*) FROM theme WHERE idBlockTheme=%d", themeBlock.getId());
             ResultSet resultSet = statement.executeQuery(query);
             return resultSet.getInt(1);
         } catch (Exception e){
@@ -139,19 +135,19 @@ public class DataBase {
     public List<Answer> getAnswers(Question question){
         try {
             List<Answer> result = new ArrayList<>();
-            String query = "SELECT * FROM Answers WHERE ";
+            String query = String.format("SELECT * FROM Answers WHERE idQuestion=%d", question.getId());
             ResultSet resultSet = statement.executeQuery(query);
             result.add(new Answer(resultSet.getInt("idAnswer"),
                     resultSet.getInt("idQuestion"),
                     resultSet.getString("text"),
-                    resultSet.getBoolean("isRight")
+                    resultSet.getInt("isRight")
                     ));
 
             while (resultSet.next()){
                 result.add(new Answer(resultSet.getInt("idAnswer"),
                         resultSet.getInt("idQuestion"),
                         resultSet.getString("text"),
-                        resultSet.getBoolean("isRight")
+                        resultSet.getInt("isRight")
                 ));
             }
             return result;
@@ -164,12 +160,12 @@ public class DataBase {
     public void saveSession(Session session){
         try {
             String query =
-                    "INSERT INTO sessions(id_session, id_student, id_type_testing, date_and_time_of_testing) VALUES (%d, %d, %d, %t)";
+                    "INSERT INTO sessions(id_session, id_student, id_type_testing, date_and_time_of_testing) VALUES (%d, %d, %d, %s)";
             statement.executeQuery(String.format(query,
                     session.getId(),
                     session.getStudentId(),
                     session.getTypeTestingId(),
-                    session.getDateOfSession()));
+                    session.getDateOfSession().toString()));
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -177,10 +173,10 @@ public class DataBase {
 
     public void saveResults(List<Result> results, Session session){
         try {
-            String query = "INSERT INTO results(id_session, id_answer, date_and_time_of_answering) VALUES (%d, %d, %t)";
+            String query = "INSERT INTO results(id_session, id_answer, date_and_time_of_answering) VALUES (%d, %d, %s)";
             results.forEach((elem) -> {
                 try {
-                    statement.executeQuery(String.format(query, session.getId(), elem.getAnswerId(), elem.getDateOfResult()));
+                    statement.executeQuery(String.format(query, session.getId(), elem.getAnswerId(), elem.getDateOfResult().toString()));
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }

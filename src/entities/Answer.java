@@ -3,17 +3,15 @@ package entities;
 public class Answer extends Entity{
     public Integer questionId;
     public String text;
-    public Boolean isRight;
-    public Answer(Integer id, Integer questionId, String text, Boolean isRight){
+    public Integer isRight;
+    
+    public Answer(Integer id, Integer questionId, String text, Integer isRight){
         this.id = id;
         this.questionId = questionId;
         this.text = text;
         this.isRight = isRight;
     }
 
-    public Boolean getRight() {
-        return isRight;
-    }
 
     public Integer getQuestionId() {
         return questionId;
@@ -23,7 +21,7 @@ public class Answer extends Entity{
         return text;
     }
 
-    public Boolean getIsRight(){
+    public Integer getIsRight(){
         return isRight;
     }
 }
